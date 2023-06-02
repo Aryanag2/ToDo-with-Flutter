@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'ToDoListScreen.dart';
+import 'package:study/ToDo.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,4 +24,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
