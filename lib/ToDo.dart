@@ -1,7 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:html';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:study/practice.dart';
+import 'package:study/database.dart';
+
 
 class TodoListScreen extends StatefulWidget {
   @override
@@ -12,24 +16,50 @@ class TodoListScreen extends StatefulWidget {
 
 class _TodoListScreenState extends State<TodoListScreen> {
   List<Task> tasks = [];
+  final dbHelper = DatabaseHelper();
 
-  void addTask(String title, DateTime dueDate) {
-    setState(() {
-      tasks.add(Task(title: title, dueDate: dueDate));
-    }
-    );
+   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadTasks();
   }
 
-  void toggleTask(Task task) {
+  Future<void> loadTasks() async {
+    final loadedTasks = await dbHelper.getTasks();
+    setState(() {
+      tasks = loadedTasks;
+    });
+  }
+  Future<void> addTask( String title, DateTime dueDate) async {
+    final task = Task(
+    id: tasks.length + 1,
+    title: title,
+    dueDate: dueDate,
+    );
+    await dbHelper.insertTask(task);
+    await loadTasks();
+    setState(() {
+      tasks.add(task);
+    });
+
+  }
+
+  Future<void> toggleTask(Task task) async{
+    task.isCompleted = !task.isCompleted;
+    await dbHelper.updateTask(task);
+    await loadTasks();
     setState(() {
       task.isCompleted = !task.isCompleted;
     });
   }
 
-  void deleteTask(Task task) {
+  void deleteTask(Task task) async{
     setState(() {
       tasks.remove(task);
     });
+    await dbHelper.deleteTask(task.id);
+    await loadTasks();
   }
 
   @override
@@ -48,11 +78,17 @@ class _TodoListScreenState extends State<TodoListScreen> {
             // subtitle: Text("abc"),
             leading: Checkbox(
               value: task.isCompleted,
-              onChanged: (value) => toggleTask(task),
+              onChanged: (value) { 
+                
+                 toggleTask(task);
+                
+                },
             ),
             trailing: IconButton(
               icon: Icon(Icons.delete),
-              onPressed: () => deleteTask(task),
+              onPressed: (){  
+                  deleteTask(task);
+              },
             ),
           );
         },
@@ -83,17 +119,27 @@ floatingActionButton: FloatingActionButton(
                       child: Text('Select Date'),
                       onPressed: () async
                       {
-                         DateTime? selectedDate = await showDatePicker(
+                           DateTime? selectedDate = await showDatePicker(
                            context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2101)
                          );
                           if (newTaskTitle != null && newTaskTitle.isNotEmpty){
-                          setState(() {
-                              tasks.add(Task(title: newTaskTitle,dueDate: selectedDate!)); 
+                            // await addTask( newTaskTitle, selectedDate!);
+
+                            setState(() {
+                              // tasks.add(Task(id: tasks.length +1, title: newTaskTitle,dueDate: selectedDate!)); 
+                             try{
+                              addTask( newTaskTitle, selectedDate!);
+                             
                               Navigator.of(context).pop();
-                          });
+                             }
+                             catch (e){
+                               print(e);
+                             }
+                            });
+                             
                       }
                       }
                       

@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:study/ToDo.dart';
 
-void main() => runApp(MyApp());
+
+void main() async{
+  runApp(MyApp());  
+  }
 
 class Task {
+  int id;
   String title;
   bool isCompleted;
   DateTime dueDate;
-  Task({required this.title, this.isCompleted = false, required this.dueDate});
-  
+  Task({required this.id, required this.title, this.isCompleted = false, required this.dueDate});
+
+  Map <String, dynamic> toMap() {
+    return {
+      'id' : id,
+      'title' : title,
+      'isCompleted?' : isCompleted,
+      'dueDate' : dueDate.toIso8601String(),
+    };
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -24,3 +35,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+// shared refernce
