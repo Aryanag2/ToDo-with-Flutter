@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:study/ToDo.dart';
+=======
+import 'package:intl/intl.dart';
+import 'ToDoListScreen.dart';
+>>>>>>> parent of 108952a (added new file)
 
 
 void main() async{
@@ -36,5 +41,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
 
 // shared refernce
+=======
+>>>>>>> parent of 108952a (added new file)
