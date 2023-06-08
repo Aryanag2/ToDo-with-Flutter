@@ -1,34 +1,17 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'package:study/ToDo.dart';
-=======
 import 'package:intl/intl.dart';
-import 'ToDoListScreen.dart';
->>>>>>> parent of 108952a (added new file)
+import 'ToDo.dart';
 
-
-void main() async{
-  runApp(MyApp());  
-  }
+// void main() => runApp(MyApp());
 
 class Task {
-  int id;
   String title;
   bool isCompleted;
   DateTime dueDate;
-  Task({required this.id, required this.title, this.isCompleted = false, required this.dueDate});
+  Task({required this.title, this.isCompleted = false, required this.dueDate});
 
-  Map <String, dynamic> toMap() {
-    return {
-      'id' : id,
-      'title' : title,
-      'isCompleted?' : isCompleted,
-      'dueDate' : dueDate.toIso8601String(),
-    };
-  }
 }
-
-class MyApp extends StatelessWidget {
+class MyApp2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,9 +23,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-<<<<<<< HEAD
-
-// shared refernce
-=======
->>>>>>> parent of 108952a (added new file)
