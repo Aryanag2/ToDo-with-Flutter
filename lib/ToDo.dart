@@ -2,34 +2,58 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:study/practice.dart';
+import 'package:study/database.dart';
 
 class TodoListScreen extends StatefulWidget {
   @override
   _TodoListScreenState createState() => _TodoListScreenState();
 }
 
-
-
 class _TodoListScreenState extends State<TodoListScreen> {
   List<Task> tasks = [];
+  final dbHelper = DatabaseHelper();
 
-  void addTask(String title, DateTime dueDate) {
-    setState(() {
-      tasks.add(Task(title: title, dueDate: dueDate));
-    }
-    );
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadTasks();
   }
 
-  void toggleTask(Task task) {
+  Future<void> loadTasks() async {
+    final loadedTasks = await dbHelper.getTasks();
+    setState(() {
+      tasks = loadedTasks;
+    });
+  }
+
+  Future<void> addTask(String title, DateTime dueDate) async {
+    final task = Task(
+      id: tasks.length + 1,
+      title: title,
+      dueDate: dueDate,
+    );
+    setState(() {
+      tasks.add(task);
+    });
+    await dbHelper.insertTask(task);
+    await loadTasks();
+  }
+
+  Future<void> toggleTask(Task task) async {
     setState(() {
       task.isCompleted = !task.isCompleted;
     });
+    await dbHelper.updateTask(task);
+    await loadTasks();
   }
 
-  void deleteTask(Task task) {
+  Future<void> deleteTask(Task task) async {
     setState(() {
       tasks.remove(task);
     });
+    await dbHelper.deleteTask(task.id);
+    await loadTasks();
   }
 
   @override
@@ -57,56 +81,46 @@ class _TodoListScreenState extends State<TodoListScreen> {
           );
         },
       ),
-floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
             context: context,
             builder: (context) {
-              String newTaskTitle='';
-              DateTime? selectedDate ;
+              String newTaskTitle = '';
               return AlertDialog(
                 title: Text('New Task'),
                 content: TextField(
                   onChanged: (value) {
                     newTaskTitle = value;
                   },
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
                   ),
-
-                  actions: <Widget>[
-                    TextButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    TextButton(
+                  TextButton(
                       child: Text('Select Date'),
-                      onPressed: () async
-                      {
-                         DateTime? selectedDate = await showDatePicker(
-                           context: context,
+                      onPressed: () async {
+                        DateTime? selectedDate = await showDatePicker(
+                            context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime.now(),
-                            lastDate: DateTime(2101)
-                         );
-                          if (newTaskTitle != null && newTaskTitle.isNotEmpty){
-                          setState(() {
-                              tasks.add(Task(title: newTaskTitle,dueDate: selectedDate!)); 
-                              Navigator.of(context).pop();
-                          });
-                      }
-                      }
-
-                   ), 
-
-                  ], 
-                );
-
-              }, 
-            ); 
-           }, 
-          child: Icon(Icons.add), 
-        ), 
-      ); 
-    } 
+                            lastDate: DateTime(2101));
+                        if (newTaskTitle.isNotEmpty && selectedDate != null) {
+                          addTask(newTaskTitle, selectedDate);
+                          Navigator.of(context).pop();
+                        }
+                      }),
+                ],
+              );
+            },
+          );
+        },
+        child: Icon(Icons.add),
+      ),
+    );
   }
+}
